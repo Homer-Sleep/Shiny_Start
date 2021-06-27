@@ -1,0 +1,128 @@
+---
+title: "ShinyNotes"
+author: "Dave"
+date: "6/27/2021"
+output: html_document
+---
+
+### From https://shiny.rstudio.com/tutorial/
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+
+ui = fluidPage(
+               #Input (from user)
+               #example a slider function
+               sliderInput(inputId = "num", 
+                           label = "Choos a number", 
+                           value = 25, min = 1, max = 100),
+		plotOutput(outputId = 'hist')
+               #output (result of function returned to user)
+               )
+
+server = function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+
+All input functions use an inputId = , then label = , 
+
+output functions:
+dataTableOutput() - interactive table
+htmlOutput() - raw HTML
+impageOutput() - image
+plotOutput() - plot
+tableOutput()
+testOutput()
+uiOutput() - shiny UI element
+verbatimTextOutput()
+
+sintax:
+plotOutput(outputId = 'hist')
+
+server function:
+this builds the outputs we want to see
+There are 3 rules for the server function:
+1) save objects to display to output$ Ex: output$hist <- (stuff)
+2) what is saved to the output$ should use the render*() 
+renderDataTable()
+renderImage, Plot, Print, Table, Text, UI
+
+Ex: 
+```{r}
+ui = fluidPage(
+               #Input (from user)
+               #example a slider function
+               sliderInput(inputId = "num"
+                           label = "Choos a number", 
+                           value = 25, min = 1, max = 100),
+		          plotOutput(outputId = 'hist')
+               #output (result of function returned to user)
+               )
+
+server = function(input, output){
+  output$hist = renderPlot({
+    title = "100 random normal values"
+    hist(rnorm(100), main = title)
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+3) input values with input$
+
+```{r}
+ui = fluidPage(
+               #Input (from user)
+               #example a slider function
+               sliderInput(inputId = "num", # this num is accessable as input$num, changes with slinder selection
+                           label = "Choos a number", 
+                           value = 25, min = 1, max = 100),
+		          plotOutput(outputId = 'hist')
+               #output (result of function returned to user)
+               )
+
+server = function(input, output){
+  output$hist = renderPlot({
+    title = paste(input$num, "random normal values")
+    hist(rnorm(input$num), main = title)
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## share you app:
+First save you app in a standard R format. 
+One directory with every file the app needs (app.R, data, images, css, helper scripts, etc.)
+The script must be saved as app.R. 
+
+Other format is a two file structure. 
+1) ui.R - all user interface script, everything save to the ui variable above
+2) server.R - everything saved to the server variable above
+Then you don't need to call shinyApp()
+
+useful for very large apps. 
+
+RStudio will recognize these three file names and will have a Run App button with different viewing options. 
+
+## Shinyapps.io
+free server provided by RStudio
+
+
+shiny.rstudio.com/articles/shinyapps.html
+
+Or build your own server:
+www.rstudio.com/products/shiny/shiny-server/
+a back end program that builds a linux web server specifically designed to host Shiny apps. 
+
+More info and examples at shiny.rstudio.com
+
+
+## End of Part 1 42:00 min
+
+
+
