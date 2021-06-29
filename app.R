@@ -1,25 +1,35 @@
 library(shiny)
 ui = fluidPage(
   sliderInput(inputId = "num",
-              label = "Choos a number", 
+              label = "Choose a number", 
               value = 25, min = 1, max = 100),
+  textInput(inputId = "title", 
+            label = "Edit title of histogram below", 
+            placeholder = "Default Histogram Title"),
+  actionButton(inputId = "clicks",
+               label = "Rename Histogram"),
   plotOutput(outputId = 'hist'),
   plotOutput(outputId = 'scatter')
 
 )
 
 server = function(input, output){
-  rand_data = reactive({
+  rand_data = reactive({ # acts as a function when called downstream
     rnorm(input$num)
+  })
+  
+  observeEvent(input$clicks, { rand_data = reactive({ # acts as a function when called downstream
+    rnorm(input$num)
+  })
   })
   
   output$hist = renderPlot({
     title = paste(input$num, "random normal values")
-    hist(rand_data(), main = title)
+    hist(rand_data(), main = isolate({input$title}))
   })
   output$scatter = renderPlot({
     title = paste(input$num, "random normal values")
-    plot(rand_data(), main = title)
+    plot(rand_data(), main = isolate({input$title}))
   })
 }
 

@@ -15,7 +15,7 @@ ui = fluidPage(
                #Input (from user)
                #example a slider function
                sliderInput(inputId = "num", 
-                           label = "Choos a number", 
+                           label = "Choose a number", 
                            value = 25, min = 1, max = 100),
 		plotOutput(outputId = 'hist')
                #output (result of function returned to user)
@@ -54,8 +54,8 @@ Ex:
 ui = fluidPage(
                #Input (from user)
                #example a slider function
-               sliderInput(inputId = "num"
-                           label = "Choos a number", 
+               sliderInput(inputId = "num",
+                           label = "Choose a number", 
                            value = 25, min = 1, max = 100),
 		          plotOutput(outputId = 'hist')
                #output (result of function returned to user)
@@ -78,7 +78,7 @@ ui = fluidPage(
                #Input (from user)
                #example a slider function
                sliderInput(inputId = "num", # this num is accessable as input$num, changes with slinder selection
-                           label = "Choos a number", 
+                           label = "Choose a number", 
                            value = 25, min = 1, max = 100),
 		          plotOutput(outputId = 'hist')
                #output (result of function returned to user)
@@ -141,7 +141,7 @@ render* functions:
 ```{r}
 ui = fluidPage(
                sliderInput(inputId = "num", 
-                           label = "Choos a number", 
+                           label = "Choose a number", 
                            value = 25, min = 1, max = 100),
                textInput(inputId = 'title', 
                          label = "random normal values", 
@@ -167,7 +167,7 @@ So reactive function notifies downstream uses are invalid. Then the output funct
 ```{r}
 ui = fluidPage(
                sliderInput(inputId = "num", 
-                           label = "Choos a number", 
+                           label = "Choose a number", 
                            value = 25, min = 1, max = 100),
                textInput(inputId = 'title', 
                          label = "random normal values", 
@@ -192,5 +192,57 @@ shinyApp(ui = ui, server = server)
 ```
 
 ## Prevent reactions with isolate()
+here the name field edit rename. We use isolate to prevent the refreshing of the main title when typing. Now it only refreshes the title when a new number is selected. 
 
-1:08:20 
+```{r}
+ui = fluidPage(
+               sliderInput(inputId = "num", 
+                           label = "Choose a number", 
+                           value = 25, min = 1, max = 100),
+               textInput(inputId = 'title', 
+                         label = "random normal values", 
+                         value = "Histogram of Random Normal Values"),
+		          plotOutput('hist'),
+		          verbatimTextOutput('stats')
+               )
+
+server = function(input, output){
+  data = reactive({
+    rnorm(input$num)
+  })
+  output$hist = renderPlot({
+    hist(data(), 
+         main = isolate({input$title})) # isolate the refresh of the title text. 
+  })
+  output$stats = renderPrint({
+    summary(data())
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Trigger event observer
+
+start with an action button - actionButton(inputId = "clicks", label = "Click here")
+uses observeEvent. 
+
+```{r}
+#observeEvent(input$clicks, {print(input$clicks)})
+# ^function,  ^respond to change, ^run {this block of code} when observer is invalidated
+
+ui = fluidPage(actionButton(inputId = 'clicks', 
+                            label = "Touch Me"))
+
+server = function (input, output){
+  observeEvent(input$clicks, {print(as.numeric(input$clicks))})
+
+}
+
+shinyApp(ui = ui, server = server)
+```
+action buttons should just be used to start another action, the number of button clicks should not be used (like above)
+
+more about action buttons: http://shiny.rstudio.com/articles/action-buttons/html
+
+## Stop at observe()  1:17:01
