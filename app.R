@@ -6,7 +6,7 @@ ui = fluidPage(
   textInput(inputId = "title", 
             label = "Edit title of histogram below", 
             placeholder = "Default Histogram Title"),
-  actionButton(inputId = "clicks",
+  actionButton(inputId = "Update",
                label = "Rename Histogram"),
   plotOutput(outputId = 'hist'),
   plotOutput(outputId = 'scatter')
@@ -14,9 +14,7 @@ ui = fluidPage(
 )
 
 server = function(input, output){
-  rand_data = reactive({ # acts as a function when called downstream
-    rnorm(input$num)
-  })
+  rand = reactiveValues( data = rnorm(input$num))
   
   observeEvent(input$clicks, { rand_data = reactive({ # acts as a function when called downstream
     rnorm(input$num)
@@ -25,11 +23,11 @@ server = function(input, output){
   
   output$hist = renderPlot({
     title = paste(input$num, "random normal values")
-    hist(rand_data(), main = isolate({input$title}))
+    hist(rand$data, main = isolate({input$title}))
   })
   output$scatter = renderPlot({
     title = paste(input$num, "random normal values")
-    plot(rand_data(), main = isolate({input$title}))
+    plot(rand$data, main = isolate({input$title}))
   })
 }
 

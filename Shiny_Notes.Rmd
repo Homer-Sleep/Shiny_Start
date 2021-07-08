@@ -245,4 +245,86 @@ action buttons should just be used to start another action, the number of button
 
 more about action buttons: http://shiny.rstudio.com/articles/action-buttons/html
 
-## Stop at observe()  1:17:01
+usually beyond what the user sees. Connect to database other things..
+observeEvent(input$clicks, {code chunk})
+here input$clicks is the reactive values to respond to, only when this value changes
+
+### observe() 
+
+observe() is similar syntax to render*, reactive, and isolate. Will run a block of code whenever a reactive value in the block of code changes (e.g., input$clicks is in there and updates, now the whole block will run)
+
+## Delay reactions:
+syntax: data = eventReactive(input$go, {rnorm(input$num)}) 
+                              ^ respond to; ^ code use to (re)build object with invalidated input. 
+                              
+Example: want to add an Update button to app:
+```{r}
+ui = fluidPage(
+               sliderInput(inputId = "num", 
+                           label = "Choose a number", 
+                           value = 25, min = 1, max = 100),
+               actionButton(inputId = 'go', label = "Update"),
+		          plotOutput('hist'),
+		          verbatimTextOutput('stats')
+               )
+
+server = function(input, output){
+  data = eventReactive(input$go,{
+    rnorm(input$num)
+  })
+  output$hist = renderPlot({
+    hist(data()) 
+  })
+  output$stats = renderPrint({
+    summary(data())
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Manage State:
+reactiveValues()
+
+you can't change input values from the user. 
+You can make your own reactive values that the user did not create. 
+
+```{r}
+ui = fluidPage(
+  actionButton(inputId = 'norm', label = "Normal"),
+  actionButton(inputId = 'unif', label = 'Uniform'),
+  plotOutput("hist")
+  )
+
+server = function(input, output) {
+  rv = reactiveValues(data = rnorm(100))
+  
+  observeEvent(input$norm, {rv$data = rnorm(100) })
+  observeEvent(input$unif, {rv$data = runif(100) })
+  
+  output$hist = renderPlot({
+    hist(rv$data)
+  })
+}
+
+shinyApp(ui = ui, server = server )
+```
+
+here each button overwrites the rv$data function. 
+
+Tips:
+Keep the end result in mind. 
+Code outside the server function will only be run once per R session(worker instance). So things like library() or loading a file that only needs to be loaded once should be outside the server function. 
+
+Code inside the server will be run once per end user (connection). So code inside the server function will be run far more often, as needed by end user. 
+
+Code inside a render function will be run once per reaction (many times). 
+
+End Part 2 ##
+
+# Part 3
+How to style shiny app:
+Look at shiny showcase. 
+
+
