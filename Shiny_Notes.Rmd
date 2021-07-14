@@ -326,5 +326,83 @@ End Part 2 ##
 # Part 3
 How to style shiny app:
 Look at shiny showcase. 
+HTML is the code behind the UI, the shiny code just calls HTML code. 
+
+Adding Static Content:
+use tags() to change content. Tags is a list of functions
+
+```{r}
+names(tags)
+# use () to run tag function
+tags$h1()
+# a tag is a link, first part is the link and second part is the hiyperlink text
+tags$a(href= "www.rstudio.com", "RStudio")
+
+# h1 first level header, h2, h3 and so on to h6. 
+tags$h3("third level")
+# plain text does not need a tag
+fluidPage(
+  "just plain text here"
+)
+
+tags$p("creates as a separate paragraph")
+
+tags$em("italics")
+tags$strong("Bold text")
+tags$code("prints in a code block")
+# nest tags together
+fluidPage(
+  tags$p("this is a", tags$strong("Shiny"), "app")
+)
+tags$br() # line break
+tags$hr() # makes horizontal rule or line
+# insert images
+fluidPage(
+  tags$img(height = 100, width = 100, 
+           src = "http://www.rstudio.com/images/RStudio.2x.png")
+) # src can be a url to an image, or include it your app
 
 
+```
+To add an image from a local file to the app, create and save files to subdir called "www". then you just need to src = 'filename.png'. only need subdir name if there is a subdir in the www folder
+
+```{r}
+# some tags have prebuild wrapper functions, so tags$ does not need to be called. Examples:
+a() # hyper link
+br() # line break
+code() # code block
+em() # italic
+h1:h6() # header font sizes
+hr() # horizontal line
+img() # import image
+p() # new paragraph
+strong() # bold
+
+#Example
+fluidPage(
+  h1("this damn app"), 
+  p(style = 'font-family:Impact', "See other crap in the", 
+    a(href = "http://www.rstudio.com/products/shiny/shiny-user-showcase/", "Shiny Shitty Showcase"))
+)
+
+```
+if you want to pass raw HTML with HTML("HTML code here"), do this within fluidPage()
+
+## Create a layout
+place object based on x,y,z coornidates 
+fluidRow() each time called will add a new row
+works with column()
+
+```{r}
+fluidPage(
+  fluidRow(
+    column(3, offset = 8, sliderInput()), 
+# offset and width are a base unit with max = 12 (left to right). The number just inside column(#) is the width. the width and offset add together and max at 12. 
+  fluidRow(
+    column(4, offset = 8,
+           plotOutput("hist"))
+  ))
+)
+```
+
+## stopped at layers 1:59:00
